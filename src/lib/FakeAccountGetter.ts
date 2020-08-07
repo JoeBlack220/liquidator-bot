@@ -13,7 +13,7 @@ export class FakeAccountGetter extends TaskExecutor {
 
     start = () => {
         logger.info({
-            at: 'FakeAccountGetter',
+            at: 'FakeAccountGetter#start',
             message: 'Starting FakeAccountGetter'
         });
         this.runUpdateAccounts();
@@ -30,6 +30,10 @@ export class FakeAccountGetter extends TaskExecutor {
             } catch (err) {
             }
 
+            logger.info({
+                at: 'FakeAccountGetter#runUpdateAccounts',
+                message: "Finish one round of runUpdateAccounts"
+            });
             await this.wait(this.updateFreqSec);
         }
     }
