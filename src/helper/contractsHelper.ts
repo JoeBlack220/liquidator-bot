@@ -26,7 +26,6 @@ export const borrow = async (account: string, tokenName: string, amount: any, ga
 export const mint = async (account: string, tokenName: string, amount: any, owner: string, gasPrice: number) => {
     const tokenAddress = address['address' + tokenName];
     const mockERC20 = await getInstance("MockERC20", web3, tokenAddress);
-
     await mockERC20.methods.transfer(account, amount).send({ from: owner, gasPrice });
     await mockERC20.methods.approve(address['savingAccount'], amount).send({ from: account, gasPrice });
 }
@@ -70,6 +69,11 @@ export const withdraw = async (account: string, tokenName: string, amount: any, 
 export const withdrawAll = async (account: string, tokenName: string, gasPrice: number) => {
     const savingAccount = await getInstance("SavingAccount", web3, address['savingAccount']);
     const tokenAddress = address['address' + tokenName];
+    await savingAccount.methods.withdrawAll(tokenAddress).send({ from: account, gas: 1000000, gasPrice });
+}
 
-    await savingAccount.methods.wtihdrawAll(tokenAddress).send({ from: account, gas: 1000000, gasPrice });
+export const balance = async (account: string, owner: string) => {
+    const savingAccount = await getInstance("SavingAccount", web3, address['savingAccount']);
+    const status = await savingAccount.methods.totalBalance(account).call({ from: owner });
+    return status;
 }

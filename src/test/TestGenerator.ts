@@ -11,7 +11,8 @@ import {
     repay,
     withdraw,
     withdrawAll,
-    mint
+    mint,
+    balance
 }
     from '../helper/contractsHelper';
 import { GasPriceExecutor } from '../lib/GasPriceExecutor';
@@ -23,6 +24,7 @@ export class TestGenerator extends TaskExecutor {
     generateFreqSec: number;
     initialPrice: number[];
     accounts: string[];
+    owner: string;
     gasPriceGetter: GasPriceExecutor;
     sixPrecision: any;
     eighteenPrecision: any;
@@ -30,13 +32,15 @@ export class TestGenerator extends TaskExecutor {
     savingAccountAddress: string;
     debtAccounts: string[];
 
+
     constructor(accounts: string[], gasPriceGetter: GasPriceExecutor) {
         super();
         this.tokenNames = ["DAI", "USDC", "USDT", "TUSD", "MKR", "BAT", "ZRX", "REP", "WBTC"];
         this.resetFreqSec = Number(process.env.TEST_RESET_FREQUENCY_SEC) * 1000;
         this.generateFreqSec = Number(process.env.TEST_GENERATE_FREQUENCY_SEC) * 1000;
         this.initialPrice = [];
-        this.accounts = accounts;
+        this.owner = accounts[0];
+        this.accounts = accounts.slice(1);
         this.gasPriceGetter = gasPriceGetter;
         this.sixPrecision = new BN(10).pow(new BN(6));
         this.eightPrecision = new BN(10).pow(new BN(8));
@@ -45,27 +49,38 @@ export class TestGenerator extends TaskExecutor {
         this.debtAccounts = [];
     }
 
+    // Should be called before start.
     init = async () => {
+
         for (let i = 0; i < this.tokenNames.length; ++i) {
             const tokenName = this.tokenNames[i];
-            const tokenPrice = await getPrice(tokenName, this.accounts[0]);
+            const tokenPrice = await getPrice(tokenName, this.owner);
             this.initialPrice.push(tokenPrice);
         }
+
+        await mint(this.owner, "USDC", this.sixPrecision.mul(new BN(100)), this.owner, this.gasPriceGetter.getLatestPrice());
+        await mint(this.owner, "DAI", this.eighteenPrecision.mul(new BN(100)), this.owner, this.gasPriceGetter.getLatestPrice());
+
         for (let account of this.accounts) {
-            await mint(account, "USDC", this.sixPrecision.mul(new BN(100)), this.accounts[0], this.gasPriceGetter.getLatestPrice());
-            await mint(account, "DAI", this.eighteenPrecision.mul(new BN(100)), this.accounts[0], this.gasPriceGetter.getLatestPrice());
+            await mint(account, "USDC", this.sixPrecision.mul(new BN(100)), this.owner, this.gasPriceGetter.getLatestPrice());
+            await mint(account, "DAI", this.eighteenPrecision.mul(new BN(100)), this.owner, this.gasPriceGetter.getLatestPrice());
         }
-        deposit(this.accounts[0], "USDC", this.sixPrecision.mul(new BN(50)), this.accounts[0], this.gasPriceGetter.getLatestPrice());
+        deposit(this.owner, "USDC", this.sixPrecision.mul(new BN(100)), this.owner, this.gasPriceGetter.getLatestPrice());
     }
 
     resetAllPrice = async () => {
-        for (let i = 0; i < this.tokenNames.length; ++i) {
+        for (let i = 0; i < 2; ++i) {
             await updatePrice(
                 this.tokenNames[i],
                 this.initialPrice[i],
-                this.accounts[0],
+                this.owner,
                 this.gasPriceGetter.getLatestPrice()
             );
+            const price = await getPrice(this.tokenNames[i], this.owner);
+            logger.debug({
+                at: "TestGenerator#resetAllPrice",
+                message: `The price of ${this.tokenNames[i]} now is ${price}`
+            });
         }
     }
 
@@ -73,7 +88,7 @@ export class TestGenerator extends TaskExecutor {
         await updatePrice(
             this.tokenNames[index],
             this.initialPrice[index] * 0.7,
-            this.accounts[0],
+            this.owner,
             this.gasPriceGetter.getLatestPrice()
         );
     }
@@ -83,8 +98,15 @@ export class TestGenerator extends TaskExecutor {
     }
 
     clearAllDebt = async () => {
-        for (let i = 1; i < this.debtAccounts.length; ++i) {
-            await this.clearDebt(this.debtAccounts[i]);
+        for (let i = 0; i < this.accounts.length; ++i) {
+            try {
+                await this.clearDebt(this.accounts[i]);
+            } catch (err) {
+                logger.info({
+                    at: "TestGenerator#clearAllDebt",
+                    message: "Trying to clear debt of a clean account"
+                });
+            }
         }
     }
 
@@ -92,7 +114,11 @@ export class TestGenerator extends TaskExecutor {
         const candidates = this.accounts.filter(x => !this.debtAccounts.includes(x));
         const index = Math.floor(Math.random() * candidates.length);
         const account = candidates[index];
-        await deposit(account, "DAI", this.eightPrecision, this.accounts[0], this.gasPriceGetter.getLatestPrice());
+        logger.info({
+            at: 'TestGenerator#generateDebtAccounts',
+            message: `Start to make account ${index}, ${account}`
+        });
+        await deposit(account, "DAI", this.eighteenPrecision, this.owner, this.gasPriceGetter.getLatestPrice());
         await borrow(account, "USDC", this.sixPrecision.mul(new BN(60)).div(new BN(100)), this.gasPriceGetter.getLatestPrice());
         this.debtAccounts.push(account);
     }
@@ -102,8 +128,15 @@ export class TestGenerator extends TaskExecutor {
     }
 
     withdrawAllDeposit = async () => {
-        for (let i = 1; i < this.debtAccounts.length; ++i) {
-            await this.withdrawDeposit(this.debtAccounts[i]);
+        for (let i = 0; i < this.accounts.length; ++i) {
+            try {
+                await this.withdrawDeposit(this.accounts[i]);
+            } catch (err) {
+                logger.info({
+                    at: "TestGenerator#withdrawAllDeposit",
+                    message: "Try to withdraw from a clean account"
+                })
+            }
         }
     }
 
@@ -112,6 +145,8 @@ export class TestGenerator extends TaskExecutor {
         await this.clearAllDebt();
         await this.withdrawAllDeposit();
         this.debtAccounts = [];
+        await this.printStatus();
+
     }
 
     start = () => {
@@ -161,6 +196,16 @@ export class TestGenerator extends TaskExecutor {
             await this.wait(this.resetFreqSec);
 
         }
+    }
+
+    printStatus = async () => {
+        for (let account of this.accounts) {
+            let status = await balance(account, this.owner);
+            logger.info({
+                at: "TestGenerator#printStatus",
+                message: `Token balance of ${account} is ${status[0]} and ${status[1]}`
+            });
+        };
     }
 
 }
