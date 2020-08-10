@@ -70,16 +70,17 @@ export class TestGenerator extends TaskExecutor {
 
     resetAllPrice = async () => {
         for (let i = 0; i < 2; ++i) {
+            const tokenName = this.tokenNames[i];
             await updatePrice(
-                this.tokenNames[i],
+                tokenName,
                 this.initialPrice[i],
                 this.owner,
                 this.gasPriceGetter.getLatestPrice()
             );
-            const price = await getPrice(this.tokenNames[i], this.owner);
+            const price = await getPrice(tokenName, this.owner);
             logger.debug({
                 at: "TestGenerator#resetAllPrice",
-                message: `The price of ${this.tokenNames[i]} now is ${price}`
+                message: `The price of ${tokenName} now is ${price}`
             });
         }
     }
@@ -118,8 +119,10 @@ export class TestGenerator extends TaskExecutor {
             at: 'TestGenerator#generateDebtAccounts',
             message: `Start to make account ${index}, ${account}`
         });
+
         await deposit(account, "DAI", this.eighteenPrecision, this.owner, this.gasPriceGetter.getLatestPrice());
         await borrow(account, "USDC", this.sixPrecision.mul(new BN(60)).div(new BN(100)), this.gasPriceGetter.getLatestPrice());
+
         this.debtAccounts.push(account);
     }
 
@@ -135,7 +138,7 @@ export class TestGenerator extends TaskExecutor {
                 logger.info({
                     at: "TestGenerator#withdrawAllDeposit",
                     message: "Try to withdraw from a clean account"
-                })
+                });
             }
         }
     }
@@ -144,9 +147,9 @@ export class TestGenerator extends TaskExecutor {
         await this.resetAllPrice();
         await this.clearAllDebt();
         await this.withdrawAllDeposit();
-        this.debtAccounts = [];
         await this.printStatus();
 
+        this.debtAccounts = [];
     }
 
     start = () => {
