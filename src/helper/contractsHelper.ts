@@ -46,10 +46,10 @@ export const getPrice = async (tokenName: string, owner: string) => {
     return await mockChainLinkForDAI.methods.latestAnswer().call({ from: owner });
 }
 
-export const tokenBalance = async (account: string) => {
+export const tokenBalance = async (token: string, account: string) => {
     const savingAccount = await getInstance("SavingAccount", web3, address['savingAccount']);
 
-    return await savingAccount.methods.totalBalance(account).call({ from: account });
+    return await savingAccount.methods.tokenBalance(account).call(token, { from: account });
 }
 
 export const repay = async (account: string, tokenName: string, amount: any, gasPrice: number) => {

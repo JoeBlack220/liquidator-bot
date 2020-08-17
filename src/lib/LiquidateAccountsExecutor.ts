@@ -15,7 +15,7 @@ export class LiquidateAccountsExecutor extends TaskExecutor {
         this.accountsGetter = accountGetter;
         this.gasPriceGetter = gasPriceGetter;
         this.updateFreqSec = Number(process.env.LIQUIDATE_INTERVAL) * 1000;
-        this.liquidatorToken = process.env.LIQUIDATOR_TOKEN || "DAI";
+        this.liquidatorToken = process.env.LIQUIDATOR_TOKEN || "ETH";
 
     }
 

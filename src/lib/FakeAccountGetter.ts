@@ -1,13 +1,13 @@
 import TaskExecutor from './TaskExecutor';
 import { logger } from './logger';
-import { isAccountLiquidatable } from '../helper/contractsHelper';
-import axios from 'axios';
+import { isAccountLiquidatable, tokenBalance } from '../helper/contractsHelper';
 export class FakeAccountGetter extends TaskExecutor {
 
     accounts: string[];
     updateFreqSec: number;
     liquidatableAccounts: string[];
     owner: string;
+    liquidatorToken: string;
 
     constructor(accounts: string[]) {
         super();
@@ -15,6 +15,8 @@ export class FakeAccountGetter extends TaskExecutor {
         this.owner = accounts[0];
         this.updateFreqSec = Number(process.env.ACCOUNTS_UPDATE_FREQUENCY_SEC) * 1000;
         this.liquidatableAccounts = [];
+        this.liquidatorToken = process.env.LIQUIDATOR_TOKEN || "ETH";
+
     }
 
     start = () => {
@@ -38,8 +40,9 @@ export class FakeAccountGetter extends TaskExecutor {
             this.liquidatableAccounts = [];
             try {
                 for (let account of this.accounts) {
-                    const liquidatableStatus = isAccountLiquidatable(account, this.owner);
-                    if (liquidatableStatus) {
+                    const liquidatableStatus = await isAccountLiquidatable(account, this.owner);
+                    const balance = await tokenBalance(this.liquidatorToken, account);
+                    if (liquidatableStatus && balance[1]) {
                         this.liquidatableAccounts.push(account);
                     }
                 }
