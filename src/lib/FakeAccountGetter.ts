@@ -1,6 +1,6 @@
 import TaskExecutor from './TaskExecutor';
 import { logger } from './logger';
-import { isAccountLiquidatable, tokenBalance } from '../helper/contractsHelper';
+import { isAccountLiquidatable, borrowBalance } from '../helper/contractsHelper';
 export class FakeAccountGetter extends TaskExecutor {
 
     accounts: string[];
@@ -41,14 +41,15 @@ export class FakeAccountGetter extends TaskExecutor {
             try {
                 for (let account of this.accounts) {
                     const liquidatableStatus = await isAccountLiquidatable(account, this.owner);
-                    const balance = await tokenBalance(this.liquidatorToken, account);
-                    if (liquidatableStatus && balance[1]) {
+                    const balance = await borrowBalance(this.liquidatorToken, account);
+                    // Should have borrowed some tokens in liquidatorToken for the borrower.
+                    if (liquidatableStatus && balance) {
                         this.liquidatableAccounts.push(account);
                     }
                 }
             } catch (err) {
                 logger.error({
-                    ar: 'FakeAccountGetter#runUpdateAccounts',
+                    at: 'FakeAccountGetter#runUpdateAccounts',
                     message: err.message
                 });
             }

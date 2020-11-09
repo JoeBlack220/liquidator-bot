@@ -1,1 +1,1 @@
-export const address = require('../../build/addresses.json');
+export const address = require('../../network/' + process.env.NETWORK + '.json');

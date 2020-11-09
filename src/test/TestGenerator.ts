@@ -7,17 +7,19 @@ import {
     liquidate,
     updatePrice,
     getPrice,
-    tokenBalance,
+    borrowBalance,
     repay,
     withdraw,
     withdrawAll,
     mint,
-    balance
+    depositBalance
 }
     from '../helper/contractsHelper';
 import { GasPriceExecutor } from '../lib/GasPriceExecutor';
 import { address } from '../lib/address';
+import { copySync } from 'fs-extra';
 const { BN } = require("@openzeppelin/test-helpers");
+
 export class TestGenerator extends TaskExecutor {
     tokenNames: string[];
     resetFreqSec: number;
@@ -54,7 +56,7 @@ export class TestGenerator extends TaskExecutor {
 
         for (let i = 0; i < this.tokenNames.length; ++i) {
             const tokenName = this.tokenNames[i];
-            const tokenPrice = await getPrice(tokenName, this.owner);
+            const tokenPrice = 5309685000000000;
             this.initialPrice.push(tokenPrice);
         }
 
@@ -101,11 +103,15 @@ export class TestGenerator extends TaskExecutor {
     clearAllDebt = async () => {
         for (let i = 0; i < this.accounts.length; ++i) {
             try {
-                await this.clearDebt(this.accounts[i]);
+                const borrowAmt = await borrowBalance("USDC", this.accounts[i]);
+                if (borrowAmt > 0) {
+                    await this.clearDebt(this.accounts[i]);
+                }
             } catch (err) {
-                logger.info({
+                logger.error({
                     at: "TestGenerator#clearAllDebt",
-                    message: "Trying to clear debt of a clean account"
+                    message: "Trying to clear debt of a clean account",
+                    err: err
                 });
             }
         }
@@ -133,11 +139,15 @@ export class TestGenerator extends TaskExecutor {
     withdrawAllDeposit = async () => {
         for (let i = 0; i < this.accounts.length; ++i) {
             try {
-                await this.withdrawDeposit(this.accounts[i]);
+                const depositBalanceAmt = await depositBalance("DAI", this.accounts[i]);
+                if (depositBalanceAmt > 0) {
+                    await this.withdrawDeposit(this.accounts[i]);
+                }
             } catch (err) {
-                logger.info({
+                logger.error({
                     at: "TestGenerator#withdrawAllDeposit",
-                    message: "Try to withdraw from a clean account"
+                    message: "Try to withdraw from a clean account",
+                    err: err
                 });
             }
         }
@@ -145,8 +155,11 @@ export class TestGenerator extends TaskExecutor {
 
     reset = async () => {
         await this.resetAllPrice();
+
         await this.clearAllDebt();
+
         await this.withdrawAllDeposit();
+
         await this.printStatus();
 
         this.debtAccounts = [];
@@ -191,8 +204,8 @@ export class TestGenerator extends TaskExecutor {
                 await this.reset();
             } catch (err) {
                 logger.error({
-                    at: "TestGenerator#runGenerate",
-                    message: `Failed to generate liquidatable account`,
+                    at: "TestGenerator#runReset",
+                    message: `Failed to reset liquidatable account`,
                     error: err.message
                 });
             }
@@ -203,10 +216,15 @@ export class TestGenerator extends TaskExecutor {
 
     printStatus = async () => {
         for (let account of this.accounts) {
-            let status = await balance(account, this.owner);
+
+            let borrowDAIAmt = await borrowBalance("DAI", account);
+            let depositDAIAmt = await depositBalance("DAI", account);
+            let borrowUSDCAmt = await borrowBalance("USDC", account);
+            let depositUSDCAmt = await depositBalance("USDC", account);
             logger.info({
                 at: "TestGenerator#printStatus",
-                message: `Token balance of ${account} is ${status[0]} and ${status[1]}`
+                message1: `DAI Token balance of ${account} is ${borrowDAIAmt} and ${depositDAIAmt}`,
+                message2: `USDC Token balance of ${account} is ${borrowUSDCAmt} and ${depositUSDCAmt}`
             });
         };
     }
