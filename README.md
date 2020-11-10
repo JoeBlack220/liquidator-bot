@@ -3,14 +3,22 @@
 This is a liquidator bot for DeFiner. Anyone can use this liquidator bot to automatically liquidate accounts who's debtValue/collateralValue exceeds a certain value. A user can specify what kind of tokens it wants to spend to liquidate other accounts, then the liquidation process will spend that kind of token to repay others debt in the same token, and buy the collateral of the target account at a discount.
 ### Why Use Liquidtor Bot
 Every user can borrow an amount of tokens regarding its collateral value and initial LTV for each token.
+<br>
 ![](http://latex.codecogs.com/gif.latex?BorrowPower=\\sum_{i=0}^{n}(DepositValue_i*InitialLTV_i))
-$$ BorrowPower = \sum_{i=0}^{n}(DepositValue_i * InitialLTV_i)$$
+<br>
 A user can keep borrowing as long as:
-$$BorrowPower \geq \sum_{i=0}^{n}BorrowValue_i$$
-But the tokens' prices are fluctuating, when the borrowed token's prices become too high, we may have this condition in borrower's  
-$$BorrowPower \lt \sum_{i=0}^{n}BorrowValue_i$$
+<br>
+![](http://latex.codecogs.com/gif.latex?BorrowPower\\geq\\sum_{i=0}^{n}BorrowValue_i)
+<br>
+
+But the tokens' prices are fluctuating, when the borrowed token's prices become too high, we may have this condition in borrower:
+<br>
+![](http://latex.codecogs.com/gif.latex?BorrowPower\\lt\\sum_{i=0}^{n}BorrowValue_i)
+<br>
 And if the borrowed token's price keeps rising, it may be:
-$$\frac{\sum_{i=0}^{n}BorrowValue_i}{\sum_{i=0}^{n}DepositValue_i} \geq LiquidationThreshold$$
+<br>
+![](http://latex.codecogs.com/gif.latex?\\frac{\\sum_{i=0}^{n}BorrowValue_i}{\\sum_{i=0}^{n}DepositValue_i}\\geq{LiquidationThreshold})
+<br>
 So this account is at high risk of not repaying its debt, we allow any one to liquidate this account. As for incentive, the liquidator will be able to buy target account's collateral **at a discount of 5% off**.
 ### Example
 Assume USDT and DAI are both of price 1.
