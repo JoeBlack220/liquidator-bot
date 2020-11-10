@@ -3,7 +3,7 @@
 This is a liquidator bot for DeFiner. Anyone can use this liquidator bot to automatically liquidate accounts who's debtValue/collateralValue exceeds a certain value. A user can specify what kind of tokens it wants to spend to liquidate other accounts, then the liquidation process will spend that kind of token to repay others debt in the same token, and buy the collateral of the target account at a discount.
 ### Why Use Liquidtor Bot
 Every user can borrow an amount of tokens regarding its collateral value and initial LTV for each token.
-![](http://latex.codecogs.com/gif.latex?BorrowPower=\\sum_{i=0}^{n}(DepositValue_i*InitialLTV_i)})
+![](http://latex.codecogs.com/gif.latex?BorrowPower=\\sum_{i=0}^{n}(DepositValue_i*InitialLTV_i))
 $$ BorrowPower = \sum_{i=0}^{n}(DepositValue_i * InitialLTV_i)$$
 A user can keep borrowing as long as:
 $$BorrowPower \geq \sum_{i=0}^{n}BorrowValue_i$$
