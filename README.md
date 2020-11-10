@@ -13,7 +13,7 @@ A user can keep borrowing as long as:
 
 But the tokens' prices are fluctuating, when the borrowed token's prices become too high, we may have this condition in borrower:
 <br>
-![](http://latex.codecogs.com/gif.latex?BorrowPower\\lt\\sum_{i=0}^{n}BorrowValue_i)
+![](http://latex.codecogs.com/gif.latex?{BorrowPower}\\lt\\sum_{i=0}^{n}{BorrowValue_i})
 <br>
 And if the borrowed token's price keeps rising, it may be:
 <br>
