@@ -60,7 +60,6 @@ export const borrowBalance = async (tokenName: string, account: string) => {
     const tokenAddress = address[tokenName];
     const res = await Accounts.methods.getBorrowBalanceCurrent(tokenAddress, account).call({ from: account });
     return res;
-
 }
 
 export const repay = async (account: string, tokenName: string, amount: any, gasPrice: number) => {

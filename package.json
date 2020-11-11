@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "env TS_NODE_COMPILER_OPTIONS='{\"module\": \"commonjs\" }' mocha -r ts-node/register 'tests/**/*.ts'"
   },
   "repository": {
     "type": "git",
@@ -28,10 +28,16 @@
     "dotenv": "^8.2.0",
     "fs-extra": "^9.0.1",
     "truffle-hdwallet-provider": "^1.0.17",
+    "typescript": "^4.0.5",
     "web3": "^1.2.11",
     "winston": "^3.3.3"
   },
   "devDependencies": {
-    "@openzeppelin/test-helpers": "^0.5.6"
+    "@openzeppelin/test-helpers": "^0.5.6",
+    "@types/chai": "^4.2.14",
+    "@types/mocha": "^8.0.4",
+    "chai": "^4.2.0",
+    "mocha": "^8.2.1",
+    "ts-node": "^9.0.0"
   }
 }
