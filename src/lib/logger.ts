@@ -1,5 +1,6 @@
 import winston from 'winston';
 import Transport from 'winston-transport';
+
 const alignedWithColorsAndTime = winston.format.combine(
     winston.format.colorize(),
     winston.format.timestamp(),

@@ -6,7 +6,7 @@ import { borrow, deposit, isAccountLiquidatable, liquidate, updatePrice, getPric
 import { FakeAccountGetter } from './lib/FakeAccountGetter';
 import { LiquidateAccountsExecutor } from './lib/LiquidateAccountsExecutor';
 import { GasPriceExecutor } from './lib/GasPriceExecutor';
-import { TestGenerator } from './test/TestGenerator';
+import { TestGenerator } from './test-helper/TestGenerator';
 const { BN } = require("@openzeppelin/test-helpers");
 
 (async () => {

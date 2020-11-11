@@ -29,6 +29,7 @@ export class LiquidateAccountsExecutor extends TaskExecutor {
 
     runLiquidateAccounts = async () => {
         for (; ;) {
+            if (this.killed) return;
             try {
                 const accounts: string[] = this.accountsGetter.getAllAccounts();
                 for (const account of accounts) {

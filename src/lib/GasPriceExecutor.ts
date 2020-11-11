@@ -2,10 +2,12 @@ import TaskExecutor from './TaskExecutor';
 import { logger } from './logger';
 import axios from 'axios';
 export class GasPriceExecutor extends TaskExecutor {
+
     gasStationUrl: string;
     price: number;
     updateFreqSec: number;
     fast: boolean;
+
     constructor() {
         super();
         this.gasStationUrl = String(process.env.GAS_STATION_URL);
@@ -27,6 +29,7 @@ export class GasPriceExecutor extends TaskExecutor {
     }
 
     runUpdatePrice = async () => {
+        if (this.killed) return;
         for (; ;) {
             try {
                 await this.updateGasPrice();

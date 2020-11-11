@@ -16,7 +16,6 @@ export class FakeAccountGetter extends TaskExecutor {
         this.updateFreqSec = Number(process.env.ACCOUNTS_UPDATE_FREQUENCY_SEC) * 1000;
         this.liquidatableAccounts = [];
         this.liquidatorToken = process.env.LIQUIDATOR_TOKEN || "ETH";
-
     }
 
     start = () => {
@@ -37,7 +36,9 @@ export class FakeAccountGetter extends TaskExecutor {
 
     runUpdateAccounts = async () => {
         for (; ;) {
+            if (this.killed) return;
             this.liquidatableAccounts = [];
+
             try {
                 for (let account of this.accounts) {
                     const liquidatableStatus = await isAccountLiquidatable(account, this.owner);

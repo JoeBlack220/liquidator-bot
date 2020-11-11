@@ -155,11 +155,8 @@ export class TestGenerator extends TaskExecutor {
 
     reset = async () => {
         await this.resetAllPrice();
-
         await this.clearAllDebt();
-
         await this.withdrawAllDeposit();
-
         await this.printStatus();
 
         this.debtAccounts = [];
@@ -180,6 +177,7 @@ export class TestGenerator extends TaskExecutor {
             message: 'Starting generating liquidatable accounts'
         });
         for (; ;) {
+            if (this.killed) return;
             try {
                 await this.generateDebtAccounts();
                 await this.discountOneToken(0);
@@ -200,6 +198,7 @@ export class TestGenerator extends TaskExecutor {
             message: 'Starting reseting the accounts status'
         });
         for (; ;) {
+            if (this.killed) return;
             try {
                 await this.reset();
             } catch (err) {
