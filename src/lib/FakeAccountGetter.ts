@@ -18,6 +18,9 @@ export class FakeAccountGetter extends TaskExecutor {
         this.liquidatorToken = process.env.LIQUIDATOR_TOKEN || "ETH";
     }
 
+    initialize = async () => {
+        // Do nothing now.
+    }
     start = () => {
         logger.info({
             at: 'FakeAccountGetter#start',
