@@ -3,20 +3,24 @@ import { logger } from './logger';
 import { FakeAccountGetter } from './FakeAccountGetter';
 import { liquidate, isAccountLiquidatable } from '../helper/contractsHelper';
 import { GasPriceExecutor } from './GasPriceExecutor';
+import Web3 from 'web3';
 
 export class LiquidateAccountsExecutor extends TaskExecutor {
     accountsGetter: FakeAccountGetter;
     updateFreqSec: number;
     liquidatorToken: string;
     gasPriceGetter: GasPriceExecutor;
+    user: string;
+    web3: Web3;
 
-    constructor(accountGetter: FakeAccountGetter, gasPriceGetter: GasPriceExecutor) {
+    constructor(accountGetter: FakeAccountGetter, gasPriceGetter: GasPriceExecutor, updateFreqSec: number, liquidatorToken: string, user: string, web3: Web3) {
         super();
         this.accountsGetter = accountGetter;
         this.gasPriceGetter = gasPriceGetter;
-        this.updateFreqSec = Number(process.env.LIQUIDATE_INTERVAL) * 1000;
-        this.liquidatorToken = process.env.LIQUIDATOR_TOKEN || "ETH";
-
+        this.updateFreqSec = updateFreqSec;
+        this.liquidatorToken = liquidatorToken;
+        this.web3 = web3;
+        this.user = user;
     }
 
     start = () => {
@@ -33,7 +37,7 @@ export class LiquidateAccountsExecutor extends TaskExecutor {
             try {
                 const accounts: string[] = this.accountsGetter.getAllAccounts();
                 for (const account of accounts) {
-                    let status = await isAccountLiquidatable(account, accounts[0]);
+                    let status = await isAccountLiquidatable(account, this.user, this.web3);
                     const price = this.gasPriceGetter.getLatestPrice();
 
                     if (status) {
@@ -41,8 +45,8 @@ export class LiquidateAccountsExecutor extends TaskExecutor {
                             at: 'LiquidateAccountsExecutor#runLiquidateAccounts',
                             message: `Found liquidatable account ${account}, start to liquidate`
                         });
-                        await liquidate(account, accounts[0], this.liquidatorToken, price);
-                        status = await isAccountLiquidatable(account, accounts[0]);
+                        await liquidate(account, this.user, this.liquidatorToken, price, this.web3);
+                        status = await isAccountLiquidatable(account, this.user, this.web3);
 
                         logger.info({
                             at: 'LiquidateAccountsExecutor#runLiquidateAccounts',

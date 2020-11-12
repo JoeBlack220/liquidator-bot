@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "env TS_NODE_COMPILER_OPTIONS='{\"module\": \"commonjs\" }' mocha -r ts-node/register 'tests/**/*.ts'"
+    "test": "env TS_NODE_COMPILER_OPTIONS='{\"module\": \"commonjs\" }' mocha -r ts-node/register 'tests/**/*.ts' --exit"
   },
   "repository": {
     "type": "git",
@@ -22,12 +22,14 @@
     "@types/dotenv": "^8.2.0",
     "@types/fs-extra": "^9.0.1",
     "@types/node": "^14.0.27",
+    "@types/truffle-privatekey-provider": "^1.1.0",
     "@types/web3": "^1.2.2",
     "@types/winston": "^2.4.4",
     "axios": "^0.19.2",
     "dotenv": "^8.2.0",
     "fs-extra": "^9.0.1",
     "truffle-hdwallet-provider": "^1.0.17",
+    "truffle-privatekey-provider": "^1.5.0",
     "typescript": "^4.0.5",
     "web3": "^1.2.11",
     "winston": "^3.3.3"

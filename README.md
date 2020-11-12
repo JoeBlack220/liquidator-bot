@@ -53,7 +53,7 @@ You can create a `.env` file and take the template of `.env.example` to make you
 | GAS_PRICE_UPDATE_FREQUENCY_SEC | How frequently to update the gas                                               |
 | GAS_INITIAL_PRICE              | Initial gas price                                                              |
 | GAS_PRICE_LEVEL                | Use what level of gas price from the gas station. Example: fast, average, slow |
-| LIQUIDATE_INTERVAL             | How frequently to liquidate for one round                                      |
+| LIQUIDATE_INTERVAL_SEC         | How frequently to liquidate for one round                                      |
 | LIQUIDATOR_TOKEN               | What token liquidator use to liquidate other accounts.                         |
 | TEST_RESET_FREQUENCY_SEC       | Test related. Can be ignored                                                   |
 | NETWORK                        | Set this to mainnet to enable liquidate process.                               |

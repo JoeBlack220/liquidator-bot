@@ -1,29 +1,36 @@
 import TaskExecutor from './TaskExecutor';
 import { logger } from './logger';
 import { isAccountLiquidatable, borrowBalance } from '../helper/contractsHelper';
+import axios from 'axios';
 import Web3 from 'web3';
 
-export class FakeAccountGetter extends TaskExecutor {
+export class AccountGetter extends TaskExecutor {
 
     accounts: string[];
     updateFreqSec: number;
     liquidatableAccounts: string[];
-    user: string;
     liquidatorToken: string;
+    accountNum: number;
+    pageNum: number;
+    limitPerReq: number;
+    user: string;
     web3: Web3;
 
-    constructor(accounts: string[], updateFreqSec: number, user: string, liquidatorToken: string, web3: Web3) {
+    constructor(updateFreqSec: number, liquidatorToken: string, accountNum: number, limitPerReq: number, user: string, web3: Web3) {
         super();
-        this.accounts = accounts;
-        this.user = user;
+        this.accounts = [];
         this.updateFreqSec = updateFreqSec;
         this.liquidatableAccounts = [];
         this.liquidatorToken = liquidatorToken;
+        this.accountNum = accountNum;
+        this.pageNum = 1;
+        this.limitPerReq = limitPerReq;
+        this.user = user;
         this.web3 = web3;
     }
 
     initialize = async () => {
-        // Do nothing now.
+
     }
 
     start = () => {
@@ -31,7 +38,7 @@ export class FakeAccountGetter extends TaskExecutor {
             at: 'FakeAccountGetter#start',
             message: 'Starting FakeAccountGetter'
         });
-        this.runUpdateAccounts();
+        this.runUpdateLiquidatableAccounts();
     }
 
     getAllAccounts = () => {
@@ -42,7 +49,36 @@ export class FakeAccountGetter extends TaskExecutor {
         return this.liquidatableAccounts;
     }
 
+    // At least, this will return 100 accounts.
     runUpdateAccounts = async () => {
+        var curAccNum = 0, errorNum = 0;
+        this.accounts = [];
+
+        while (curAccNum < this.accountNum && errorNum < 3) {
+            const accountListAPI = `https://stat.definer.cn/api_v2/market/address_list?page=${this.pageNum}&limit=${this.limitPerReq}`;
+            let res = await axios.get(accountListAPI);
+            if (res.data.code != 200) {
+                logger.error({
+                    at: 'AccountGetter#runUpdateAccounts',
+                    message: 'Failed to retrieve accounts from stat API',
+                    data: res.data
+                });
+                errorNum++;
+            } else {
+                const newAccounts = res.data.data;
+                this.accounts = this.accounts.concat(newAccounts);
+                if (newAccounts.length < this.limitPerReq) {
+                    this.pageNum = 1;
+                    return;
+                } else {
+                    this.pageNum++;
+                }
+                curAccNum += newAccounts.length
+            }
+        }
+    }
+
+    runUpdateLiquidatableAccounts = async () => {
         for (; ;) {
             if (this.killed) return;
             this.liquidatableAccounts = [];
