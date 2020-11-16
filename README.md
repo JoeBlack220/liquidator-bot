@@ -44,6 +44,7 @@ User2 tries to liquidate user1.
 - Nodejs.
 - An account that has deposited some **target token** in DeFiner, and it has enough ETH to call liqudiate() function.
 - An access node.
+- Ensure that your account has enough ETH for all the liquidation operation.
 
 ### Env Variables
 You can create a `.env` file and take the template of `.env.example` to make your customized settings. If some fields are not specified, it will adopt the default values.
