@@ -54,7 +54,7 @@ export class App extends TaskExecutor {
         );
 
         this.accountGetter = new BackendAccountGetter(
-            accountUpdateFreq,
+            10000,
             liquidatorToken,
             accountNum,
             100,

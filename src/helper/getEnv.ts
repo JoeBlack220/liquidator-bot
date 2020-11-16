@@ -25,7 +25,7 @@ export const getEnvVarStr = (varName: string): string => {
             return process.env.GAS_INITIAL_PRICE || "25";
 
         case "ACCOUNTS_UPDATE_FREQUENCY_MILLI_SEC":
-            return process.env.ACCOUNTS_UPDATE_FREQUENCY_MILLI_SEC || "30000";
+            return process.env.ACCOUNTS_UPDATE_FREQUENCY_MILLI_SEC || "10000";
 
         case "LIQUIDATOR_TOKEN":
             return process.env.LIQUIDATOR_TOKEN || "ETH";

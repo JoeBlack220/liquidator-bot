@@ -46,20 +46,22 @@ User2 tries to liquidate user1.
 - An access node.
 
 ### Env Variables
-You can create a `.env` file and take the template of `.env.example` to make your customized settings.
-| Name                           | Description                                                                    |
-| ------------------------------ | ------------------------------------------------------------------------------ |
-| GAS_STATION_URL                | URL to use api to get the newest gas price                                     |
-| GAS_PRICE_UPDATE_FREQUENCY_SEC | How frequently to update the gas                                               |
-| GAS_INITIAL_PRICE              | Initial gas price                                                              |
-| GAS_PRICE_LEVEL                | Use what level of gas price from the gas station. Example: fast, average, slow |
-| LIQUIDATE_INTERVAL_SEC         | How frequently to liquidate for one round                                      |
-| LIQUIDATOR_TOKEN               | What token liquidator use to liquidate other accounts.                         |
-| TEST_RESET_FREQUENCY_SEC       | Test related. Can be ignored                                                   |
-| NETWORK                        | Set this to mainnet to enable liquidate process.                               |
-| TEST_GENERATE_FREQUENCY_SEC    | Test related. Can be ignored                                                   |
-| USER_MNEMONIC                  | Liquidator's mnemonic in order to execute liquidation                          |
-| ACCESS_NODE_URL                | Your access node's URL                                                         |
+You can create a `.env` file and take the template of `.env.example` to make your customized settings. If some fields are not specified, it will adopt the default values.
+| Name                                 | Description                                            | Default Value                                 |
+| ------------------------------------ | ------------------------------------------------------ | --------------------------------------------- |
+| GAS_STATION_URL                      | URL to use api to get the newest gas price             | http://ethgasstation.info/json/ethgasAPI.json |
+| GAS_PRICE_UPDATE_FREQUENCY_MILLI_SEC | How frequently to update the gas in milliseconds       | 5000                                          |
+| GAS_INITIAL_PRICE                    | Initial gas price in gwei                              | 25                                            |
+| GAS_PRICE_MULTIPLIER                 | The mutilplier for gas price.                          | 1                                             |
+| LIQUIDATE_INTERVAL_MILLI_SEC         | How much time do we wait after one liquidation round   | 10000                                         |
+| LIQUIDATOR_TOKEN                     | What token liquidator use to liquidate other accounts. | ETH                                           |
+| PROVIDER_TYPE                        | Provider type, privatekey or mnemonic                  | privatekey                                    |
+| PRIVATE_KEY                          | Should specify if use privatekey provider              | NULL                                          |
+| PUBLIC_KEY                           | The public key that the user trying to use             | NULL                                          |
+| USER_MNEMONIC                        | Should specify if use mnemonic provider                | NULL                                          |
+| ACCESS_NODE_URL                      | Your access node's URL                                 | NULL                                          |
+| ACCOUNT_NUM                          | How many accounts to get for one round                 | 1000                                          |
+
 ### Steps
 - Download this git repo: `git clone https://github.com/DeFinerOrg/Savings.git`
 - Install dependencies: `npm i`
@@ -67,3 +69,8 @@ You can create a `.env` file and take the template of `.env.example` to make you
 - Create a file called .env in the root directory. You can check the last section on instructions about how to create that file.
 - Run the liquidator bot: `ts-node src/index.ts`
 - You can find logs inside: `logs/` directory
+
+## Test
+### Overview
+I have tests for each module of the system, but run some tests will be little difficult. It will require you to deploy DeFiner's protocol locally first, which is not open sourced yet. Here I have this screenshot of successfully run all the tests.
+![](./imgs/test.png)
