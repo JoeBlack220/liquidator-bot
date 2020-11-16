@@ -17,6 +17,9 @@ export class GasPriceExecutor extends TaskExecutor {
         this.gasPriceMultiplier = gasPriceMultiplier;
     }
 
+    /**
+     * Call runUpdatePrice
+     */
     start = () => {
         logger.info({
             at: 'GasUpdateExecutor#start',
@@ -25,10 +28,16 @@ export class GasPriceExecutor extends TaskExecutor {
         this.runUpdatePrice();
     }
 
+    /**
+     * Getter fo the latest gas price, in wei.
+     */
     getLatestPrice = () => {
         return Web3.utils.toWei(this.price.toString(), 'gwei');
     }
 
+    /**
+     * Start an infinite loop to update the gas price.
+     */
     runUpdatePrice = async () => {
         if (this.killed) return;
         for (; ;) {
@@ -46,6 +55,9 @@ export class GasPriceExecutor extends TaskExecutor {
         }
     }
 
+    /**
+     * Call getGasPriceFromStation to get the newest gas price in gwei.
+     */
     updateGasPrice = async () => {
         let newPrice: number;
         try {
@@ -67,6 +79,11 @@ export class GasPriceExecutor extends TaskExecutor {
 
     }
 
+    /**
+     * Get the gas price from gasStationUrl.
+     * 
+     * @remark - The price get straightly from gas station has unit 10 * gwei
+     */
     getGasPriceFromStation = async () => {
         logger.info({
             at: 'GasPriceExecutor#getGasPrice',

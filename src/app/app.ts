@@ -5,9 +5,10 @@ import TaskExecutor from '../lib/TaskExecutor';
 import { GasPriceExecutor } from '../lib/GasPriceExecutor';
 import { BackendAccountGetter } from '../lib/BackendAccountGetter';
 import { LiquidateAccountsExecutor } from '../lib/LiquidateAccountsExecutor';
-import { add } from 'winston';
+import { logger } from '../lib/logger';
 
 export class App extends TaskExecutor {
+
     accountGetter: BackendAccountGetter;
     gasGetter: GasPriceExecutor;
     liquidateExecutor: LiquidateAccountsExecutor;
@@ -35,6 +36,7 @@ export class App extends TaskExecutor {
 
         this.liquidateFreq = liquidateFreq;
         this.web3Wrapper = Web3Wrapper.getInstance();
+
         this.web3Wrapper.setWeb3(
             providerType,
             mnemonic,
@@ -72,12 +74,27 @@ export class App extends TaskExecutor {
         )
     }
 
+    /**
+     * Start the process of liquidator bot
+     * 
+     * @remark - 1. Get all the accounts from account list API
+     *           2. Only retain the liquidatable accounts.
+     *           3. Liquidate the accounts get from step 2
+     */
     start = async () => {
         this.gasGetter.runUpdatePrice();
         for (; ;) {
+
             await this.accountGetter.runUpdateAccounts();
             await this.accountGetter.updateLiquidatableAccounts();
             await this.liquidateExecutor.liquidateAccounts();
+
+
+            logger.info({
+                at: 'App#start',
+                message: "Finish one round of liquidation."
+            });
+
             this.wait(this.liquidateFreq);
         }
     }

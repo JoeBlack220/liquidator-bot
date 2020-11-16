@@ -13,6 +13,7 @@ export abstract class AccountGetter extends TaskExecutor {
     liquidatorToken: string;
     web3Wrapper: Web3Wrapper;
     address: any;
+
     constructor(updateFreqSec: number, liquidatorToken: string, user: string, web3Wrapper: Web3Wrapper, address: any) {
         super();
         this.accounts = [];
@@ -35,5 +36,6 @@ export abstract class AccountGetter extends TaskExecutor {
     abstract async runUpdateAccounts(): Promise<void>;
 
     abstract async runUpdateLiquidatableAccounts(): Promise<void>;
+
     abstract async updateLiquidatableAccounts(): Promise<void>;
 }

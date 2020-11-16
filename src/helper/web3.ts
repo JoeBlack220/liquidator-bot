@@ -24,6 +24,9 @@ export class Web3Wrapper {
         this.web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"));
     }
 
+    /**
+     * Get a singleton instance of Web3
+     */
     public static getInstance = (): Web3Wrapper => {
 
         if (!Web3Wrapper.instance) {
@@ -61,6 +64,9 @@ export class Web3Wrapper {
         }
     }
 
+    /**
+     * Getter of the web3.
+     */
     public getWeb3 = (): Web3 => {
         return this.web3;
     }

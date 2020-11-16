@@ -1,4 +1,5 @@
 import Web3 from 'web3';
+
 /**
  * 
  * Used to get a contract instance.

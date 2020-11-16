@@ -22,6 +22,9 @@ export class BackendAccountGetter extends AccountGetter {
 
     }
 
+    /**
+     * Start the process of update accounts using backend api.
+     */
     async start() {
         logger.info({
             at: 'FakeAccountGetter#start',
@@ -30,18 +33,31 @@ export class BackendAccountGetter extends AccountGetter {
         this.runUpdateLiquidatableAccounts();
     }
 
+    /**
+     * Getter of all the accounts.
+     */
     getAllAccounts() {
         return this.accounts;
     }
 
+    /**
+     * Getter of all the liquidatable accounts.
+     */
     getLiquidatableAccounts() {
         return this.liquidatableAccounts;
     }
 
-    // At least, this will return 100 accounts.
+    /**
+     * Update accounts by calling the backend API
+     * 
+     * @remark
+     * At least we will get 100 accounts since the limit of each query is set to 100.
+     */
     async runUpdateAccounts() {
+
         var curAccNum = 0, errorNum = 0;
         this.accounts = [];
+        this.liquidatableAccounts = [];
 
         while (curAccNum < this.accountNum && errorNum < 3) {
             const accountListAPI = `https://stat.definer.cn/api_v2/market/address_list?page=${this.pageNum}&limit=${this.limitPerReq}`;
@@ -55,18 +71,26 @@ export class BackendAccountGetter extends AccountGetter {
                 errorNum++;
             } else {
                 const newAccounts = res.data.data;
-                this.accounts = this.accounts.concat(newAccounts);
                 if (newAccounts.length < this.limitPerReq) {
                     this.pageNum = 1;
                     return;
                 } else {
                     this.pageNum++;
                 }
+                for (let info of newAccounts) {
+                    this.accounts.push(info['eth_address']);
+                    if (Number(info['ltv']) >= 0.85) {
+                        this.liquidatableAccounts.push(info['eth_address']);
+                    }
+                }
                 curAccNum += newAccounts.length
             }
         }
     }
 
+    /**
+     * Start a infinite loop to upgrade liqudiatable accounts.
+     */
     async runUpdateLiquidatableAccounts() {
         for (; ;) {
             if (this.killed) return;
@@ -76,10 +100,13 @@ export class BackendAccountGetter extends AccountGetter {
 
     }
 
+    /**
+     * Update liquidatable accounts by checking its liquidatable status and borrow balance in target token.
+     */
     async updateLiquidatableAccounts() {
-        this.liquidatableAccounts = [];
+        var newLiquidatableAccounts = [];
         try {
-            for (let account of this.accounts) {
+            for (let account of this.liquidatableAccounts) {
                 const liquidatableStatus = await isAccountLiquidatable(
                     account,
                     this.user,
@@ -102,7 +129,7 @@ export class BackendAccountGetter extends AccountGetter {
 
                 // Should have borrowed some tokens in liquidatorToken for the borrower.
                 if (liquidatableStatus && balance != "0") {
-                    this.liquidatableAccounts.push(account);
+                    newLiquidatableAccounts.push(account);
                 }
             }
         } catch (err) {
@@ -116,5 +143,7 @@ export class BackendAccountGetter extends AccountGetter {
             at: 'FakeAccountGetter#updateAccounts',
             message: "Finish one round of runUpdateAccounts"
         });
+
+        this.liquidatableAccounts = newLiquidatableAccounts;
     }
 }

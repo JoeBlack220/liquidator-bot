@@ -14,6 +14,9 @@ export class GanacheAccountGetter extends AccountGetter {
         // Do nothing now.
     }
 
+    /**
+     * Call runUpdateAccounts
+     */
     start() {
         logger.info({
             at: 'FakeAccountGetter#start',
@@ -22,10 +25,16 @@ export class GanacheAccountGetter extends AccountGetter {
         this.runUpdateAccounts();
     }
 
+    /**
+     * Getter for all accounts.
+     */
     getAllAccounts() {
         return this.accounts;
     }
 
+    /**
+     * Getter for all liquidatable accounts.
+     */
     getLiquidatableAccounts() {
         return this.liquidatableAccounts;
     }
@@ -34,6 +43,9 @@ export class GanacheAccountGetter extends AccountGetter {
 
     }
 
+    /**
+     * Update liquidatable accounts by checking its liquidatable status and borrow balance in target token.
+     */
     async updateLiquidatableAccounts() {
         this.liquidatableAccounts = [];
         try {
@@ -71,7 +83,9 @@ export class GanacheAccountGetter extends AccountGetter {
         });
     }
 
-
+    /**
+     * Start a inifinite loop to update liquidatable accounts.
+     */
     async runUpdateLiquidatableAccounts() {
         for (; ;) {
             if (this.killed) return;

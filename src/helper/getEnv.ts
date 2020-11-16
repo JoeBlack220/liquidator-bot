@@ -3,11 +3,16 @@
  * Notice that the path of starting the process do matter.
  * We should call `ts-node ./src/index.ts` at the same directory as liquidator-bot.
  */
-
 var path = require('path');
 var dotEnvPath = path.resolve('./.env');
 require('dotenv').config({ path: dotEnvPath });
 
+/**
+ * 
+ * Get the environment variable from .env file in string type.
+ * 
+ * @param varName : The name of the env variable.
+ */
 export const getEnvVarStr = (varName: string): string => {
     switch (varName) {
         case "GAS_STATION_URL":
@@ -57,6 +62,12 @@ export const getEnvVarStr = (varName: string): string => {
     }
 }
 
+/**
+ * 
+ * Get the environment variable from .env file in number type.
+ * 
+ * @param varName : The name of the env variable.
+ */
 export const getEnvVarNumber = (varName: string): number => {
     return Number(getEnvVarStr(varName));
 }

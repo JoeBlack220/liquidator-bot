@@ -6,6 +6,7 @@ import { GasPriceExecutor } from './GasPriceExecutor';
 import { Web3Wrapper } from '../helper/web3';
 
 export class LiquidateAccountsExecutor extends TaskExecutor {
+
     accountsGetter: AccountGetter;
     updateFreqSec: number;
     liquidatorToken: string;
@@ -25,6 +26,9 @@ export class LiquidateAccountsExecutor extends TaskExecutor {
         this.address = address;
     }
 
+    /**
+     * Call runLiquidateAccounts
+     */
     start = () => {
         logger.info({
             at: 'LiquidateAccountsExecutor#start',
@@ -33,6 +37,9 @@ export class LiquidateAccountsExecutor extends TaskExecutor {
         this.runLiquidateAccounts();
     }
 
+    /**
+     * Liquidate the liquidatable accounts get from accounts getter one by one.
+     */
     liquidateAccounts = async () => {
         const liquidatableAccounts = this.accountsGetter.getLiquidatableAccounts();
         logger.info({
@@ -52,6 +59,14 @@ export class LiquidateAccountsExecutor extends TaskExecutor {
         }
     }
 
+    /**
+     * 
+     * Liquidate one given account.
+     * 
+     * @remark - Before liquidation, call isAccountLiquidatable to check again
+     * 
+     * @param account - The account to be liquidated
+     */
     liquidateOne = async (account: string) => {
         let status = await isAccountLiquidatable(account, this.user, this.web3Wrapper.getWeb3(), this.address);
         const price = this.gasPriceGetter.getLatestPrice();
@@ -72,6 +87,9 @@ export class LiquidateAccountsExecutor extends TaskExecutor {
         }
     }
 
+    /**
+     * Start an infinite loop to liquidate accounts.
+     */
     runLiquidateAccounts = async () => {
         for (; ;) {
             if (this.killed) return;
@@ -108,6 +126,7 @@ export class LiquidateAccountsExecutor extends TaskExecutor {
                 at: 'LiquidateAccountsExecutor#runLiquidateAccounts',
                 message: "Finish one round of runLiquidateAccounts"
             });
+
             await this.wait(this.updateFreqSec);
         }
     }

@@ -51,7 +51,13 @@ export class TestGenerator extends TaskExecutor {
         this.savingAccountAddress = address['SavingAccount'];
     }
 
-    // Should be called before start.
+    /**
+     * 
+     * Initialize some fields of the class that need to call async function.
+     * It prepares each user with funds and save some tokens to the DeFiner for user to borrow.
+     * 
+     * @remark - Should be called immediately after construction.
+     */
     init = async () => {
         for (let i = 0; i < this.tokenNames.length; ++i) {
             const tokenName = this.tokenNames[i];
@@ -76,6 +82,7 @@ export class TestGenerator extends TaskExecutor {
             this.web3Wrapper.getWeb3(),
             this.address
         );
+
         await mint(
             this.owner,
             "DAI", this.eighteenPrecision.mul(new BN(100)),
@@ -114,6 +121,9 @@ export class TestGenerator extends TaskExecutor {
         );
     }
 
+    /**
+     * Reset all the token price to the initial value.
+     */
     resetAllPrice = async () => {
         for (let i = 0; i < 2; ++i) {
             const tokenName = this.tokenNames[i];
@@ -138,6 +148,12 @@ export class TestGenerator extends TaskExecutor {
         }
     }
 
+    /**
+     * 
+     * Change a token's price to 0.7 of the original price.
+     * 
+     * @param index - The index of the token we want to change
+     */
     discountOneToken = async (index: number) => {
         await updatePrice(
             this.tokenNames[index],
@@ -149,6 +165,12 @@ export class TestGenerator extends TaskExecutor {
         );
     }
 
+    /**
+     * 
+     * Let one user to repay its debt in USDC.
+     * 
+     * @param account - The account to repay its debt.
+     */
     clearDebt = async (account: string) => {
         await repay(
             "USDC",
@@ -160,6 +182,9 @@ export class TestGenerator extends TaskExecutor {
         );
     }
 
+    /**
+     * Clear the debt for all the users.
+     */
     clearAllDebt = async () => {
         for (let i = 0; i < this.accounts.length; ++i) {
             try {
@@ -183,6 +208,9 @@ export class TestGenerator extends TaskExecutor {
         }
     }
 
+    /**
+     * Let one user deposit 1 DAI and borrow 0.6 USDC to become a possible liquidatable account.
+     */
     generateDebtAccounts = async () => {
         const candidates = this.accounts.filter(x => !this.debtAccounts.includes(x));
         const index = Math.floor(Math.random() * candidates.length);
@@ -214,6 +242,12 @@ export class TestGenerator extends TaskExecutor {
         this.debtAccounts.push(account);
     }
 
+    /**
+     * 
+     * Let one user to withdraw all its deposited DAI.
+     * 
+     * @param account - The user to withdraw DAI.
+     */
     withdrawDeposit = async (account: string) => {
         await withdrawAll(
             "DAI",
@@ -225,6 +259,9 @@ export class TestGenerator extends TaskExecutor {
         );
     }
 
+    /**
+     * Let all users to withdraw its deposited DAI.
+     */
     withdrawAllDeposit = async () => {
         for (let i = 0; i < this.accounts.length; ++i) {
             try {
@@ -248,6 +285,9 @@ export class TestGenerator extends TaskExecutor {
         }
     }
 
+    /**
+     * Reset the deposit and borrow balance of all the user to zero.
+     */
     reset = async () => {
         await this.resetAllPrice();
         await this.clearAllDebt();
@@ -256,6 +296,10 @@ export class TestGenerator extends TaskExecutor {
         this.debtAccounts = [];
     }
 
+
+    /**
+     * Call runGenerate and runReset
+     */
     start = () => {
         logger.info({
             at: 'TestGenerator#start',
@@ -265,6 +309,9 @@ export class TestGenerator extends TaskExecutor {
         this.runReset();
     }
 
+    /**
+     * Start an inifinet loop to generate liquidatable account.
+     */
     runGenerate = async () => {
         logger.info({
             at: 'TestGenerator#runGenerate',
@@ -285,6 +332,12 @@ export class TestGenerator extends TaskExecutor {
         }
     }
 
+    /**
+     * 
+     * Generate some liquidatable accounts.
+     * 
+     * @param num - The number of liquidatable accounts we want to generate.
+     */
     generateLiquidatableAccounts = async (num: number) => {
         for (let i = 0; i < num; ++i) {
             await this.generateDebtAccounts();
@@ -292,6 +345,9 @@ export class TestGenerator extends TaskExecutor {
         await this.discountOneToken(0);
     }
 
+    /**
+     * Start an infinite loop to call reset.
+     */
     runReset = async () => {
         logger.info({
             at: 'TestGenerator#runRest',
@@ -313,6 +369,9 @@ export class TestGenerator extends TaskExecutor {
         }
     }
 
+    /**
+     * Check whether for each user, its borrow balance and deposit balance are all zero.
+     */
     checkStatus = async () => {
         for (let account of this.accounts) {
 
