@@ -1,7 +1,8 @@
 import Web3 from 'web3';
 import { getInstance } from './getContractInstance';
+import { addressGetter } from './addressGetter';
+import { getEnvVarStr } from './getEnv';
 const { BN } = require("@openzeppelin/test-helpers");
-import { address } from '../lib/address';
 
 /**
  * Call SavingAccount.liquidate() function.
@@ -12,7 +13,7 @@ import { address } from '../lib/address';
  * @param gasPrice - The gas price of this transaction.
  * @param web3 - The web3 client.
  */
-export const liquidate = async (targetAccount: string, user: string, tokenName: string, gasPrice: number, web3: Web3) => {
+export const liquidate = async (targetAccount: string, user: string, tokenName: string, gasPrice: string, web3: Web3, address: any) => {
     const savingAccount = await getInstance("SavingAccount", web3, address['SavingAccount']);
     const tokenAddress = address[tokenName];
     await savingAccount.methods.liquidate(targetAccount, tokenAddress).send({ from: user, gas: 4000000, gasPrice });
@@ -27,7 +28,7 @@ export const liquidate = async (targetAccount: string, user: string, tokenName: 
  * @param web3 - The web3 client.
  * @returns - A boolean, whether the current account is liquidatable.
  */
-export const isAccountLiquidatable = async (account: string, user: string, web3: Web3) => {
+export const isAccountLiquidatable = async (account: string, user: string, web3: Web3, address: any) => {
     const Accounts = await getInstance("Accounts", web3, address['Accounts']);
     var status = false;
 
@@ -55,7 +56,7 @@ export const isAccountLiquidatable = async (account: string, user: string, web3:
  * @param gasPrice - The gas price of the transaction.
  * @param web3 - The web3 client.
  */
-export const borrow = async (account: string, tokenName: string, amount: any, gasPrice: number, user: string, web3: Web3) => {
+export const borrow = async (tokenName: string, amount: any, gasPrice: string, user: string, web3: Web3, address: any) => {
     const savingAccount = await getInstance("SavingAccount", web3, address['SavingAccount']);
     const tokenAddress = address[tokenName];
     await savingAccount.methods.borrow(tokenAddress, amount).send({ from: user, gas: 1000000, gasPrice });
@@ -74,7 +75,7 @@ export const borrow = async (account: string, tokenName: string, amount: any, ga
  * @param gasPrice - The gas price of the transaction.
  * @param web3 - The web3 client.
  */
-export const mint = async (account: string, tokenName: string, amount: any, user: string, gasPrice: number, web3: Web3) => {
+export const mint = async (account: string, tokenName: string, amount: any, user: string, gasPrice: string, web3: Web3, address: any) => {
     const tokenAddress = address[tokenName];
     const mockERC20 = await getInstance("MockERC20", web3, tokenAddress);
     await mockERC20.methods.transfer(account, amount).send({ from: user, gasPrice });
@@ -94,7 +95,7 @@ export const mint = async (account: string, tokenName: string, amount: any, user
  * @param gasPrice - The gas price of the transaction.
  * @param web3 - The web3 client.
  */
-export const deposit = async (account: string, tokenName: string, amount: any, user: string, gasPrice: number, web3: Web3) => {
+export const deposit = async (tokenName: string, amount: any, user: string, gasPrice: string, web3: Web3, address: any) => {
     const savingAccount = await getInstance("SavingAccount", web3, address['SavingAccount']);
     const tokenAddress = address[tokenName];
     await savingAccount.methods.deposit(tokenAddress, amount).send({ from: user, gas: 1000000, gasPrice });
@@ -112,7 +113,7 @@ export const deposit = async (account: string, tokenName: string, amount: any, u
  * @param gasPrice - The gas price of the transaction.
  * @param web3 - The web3 client.
  */
-export const updatePrice = async (tokenName: string, updatedPrice: any, user: string, gasPrice: number, web3: Web3) => {
+export const updatePrice = async (tokenName: string, updatedPrice: any, user: string, gasPrice: string, web3: Web3, address: any) => {
     const mockChainLinkForDAI = await getInstance("MockChainLinkAggregator", web3, address['mockChainlinkAggregatorfor' + tokenName]);
     await mockChainLinkForDAI.methods.updateAnswer(updatedPrice).send({ from: user, gasPrice });
 }
@@ -128,7 +129,7 @@ export const updatePrice = async (tokenName: string, updatedPrice: any, user: st
  * @param web3 - The web3 client.
  * @returns - The value of the token price.
  */
-export const getPrice = async (tokenName: string, user: string, web3: Web3) => {
+export const getPrice = async (tokenName: string, user: string, web3: Web3, address: any) => {
     const MockChainLinkAggregator = await getInstance("MockChainLinkAggregator", web3, address['mockChainlinkAggregatorfor' + tokenName]);
     return await MockChainLinkAggregator.methods.latestAnswer().call({ from: user });
 }
@@ -141,7 +142,7 @@ export const getPrice = async (tokenName: string, user: string, web3: Web3) => {
  * @param web3 - The web3 client.
  * @returns The borrowed token of the target account.
  */
-export const borrowBalance = async (tokenName: string, account: string, user: string, web3: Web3) => {
+export const borrowBalance = async (tokenName: string, account: string, user: string, web3: Web3, address: any) => {
     const Accounts = await getInstance("Accounts", web3, address['Accounts']);
     const tokenAddress = address[tokenName];
     const res = await Accounts.methods.getBorrowBalanceCurrent(tokenAddress, account).call({ from: user });
@@ -156,7 +157,7 @@ export const borrowBalance = async (tokenName: string, account: string, user: st
  * @param web3 - The web3 client.
  * @returns The deposited token of the target account.
  */
-export const depositBalance = async (tokenName: string, account: string, user: string, web3: Web3) => {
+export const depositBalance = async (tokenName: string, account: string, user: string, web3: Web3, address: any) => {
     const Accounts = await getInstance("Accounts", web3, address['Accounts']);
     const tokenAddress = address[tokenName];
     return await Accounts.methods.getDepositBalanceCurrent(tokenAddress, account).call({ from: user });
@@ -175,7 +176,7 @@ export const depositBalance = async (tokenName: string, account: string, user: s
  * @param web3 - The web3 client.
  * @param gasPrice - The gas price of the transaction.
  */
-export const repay = async (account: string, tokenName: string, amount: any, gasPrice: number, user: string, web3: Web3) => {
+export const repay = async (tokenName: string, amount: string, gasPrice: string, user: string, web3: Web3, address: any) => {
     const savingAccount = await getInstance("SavingAccount", web3, address['SavingAccount']);
     const tokenAddress = address[tokenName];
     await savingAccount.methods.repay(tokenAddress, amount).send({ from: user, gas: 2000000, gasPrice });
@@ -194,7 +195,7 @@ export const repay = async (account: string, tokenName: string, amount: any, gas
  * @param gasPrice - The gas price of the transaction.
  * @param web3 - The web3 client.
  */
-export const withdraw = async (account: string, tokenName: string, amount: any, gasPrice: number, user: string, web3: Web3) => {
+export const withdraw = async (tokenName: string, amount: string, gasPrice: string, user: string, web3: Web3, address: any) => {
     const savingAccount = await getInstance("SavingAccount", web3, address['SavingAccount']);
     const tokenAddress = address[tokenName];
     await savingAccount.methods.wtihdraw(tokenAddress, amount).send({ from: user, gas: 2000000, gasPrice });
@@ -212,8 +213,13 @@ export const withdraw = async (account: string, tokenName: string, amount: any, 
  * @param gasPrice - The gas price of the transaction.
  * @param web3 - The web3 client.
  */
-export const withdrawAll = async (account: string, tokenName: string, gasPrice: number, user: string, web3: Web3) => {
+export const withdrawAll = async (tokenName: string, gasPrice: string, user: string, web3: Web3, address: any) => {
     const savingAccount = await getInstance("SavingAccount", web3, address['SavingAccount']);
     const tokenAddress = address[tokenName];
     await savingAccount.methods.withdrawAll(tokenAddress).send({ from: user, gas: 2000000, gasPrice });
+}
+
+export const getBorrowPower = async (account: string, user: string, web3: Web3, address: any) => {
+    const Accounts = await getInstance("Accounts", web3, address['Accounts']);
+    return await Accounts.methods.getBorrowPower(account).call({ from: user });
 }

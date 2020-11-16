@@ -11,8 +11,8 @@ export class BackendAccountGetter extends AccountGetter {
     pageNum: number;
     limitPerReq: number;
 
-    constructor(updateFreqSec: number, liquidatorToken: string, accountNum: number, limitPerReq: number, user: string, web3Wrapper: Web3Wrapper) {
-        super(updateFreqSec, liquidatorToken, user, web3Wrapper);
+    constructor(updateFreqSec: number, liquidatorToken: string, accountNum: number, limitPerReq: number, user: string, web3Wrapper: Web3Wrapper, address: any) {
+        super(updateFreqSec, liquidatorToken, user, web3Wrapper, address);
         this.accountNum = accountNum;
         this.pageNum = 1;
         this.limitPerReq = limitPerReq;
@@ -70,29 +70,51 @@ export class BackendAccountGetter extends AccountGetter {
     async runUpdateLiquidatableAccounts() {
         for (; ;) {
             if (this.killed) return;
-            this.liquidatableAccounts = [];
-
-            try {
-                for (let account of this.accounts) {
-                    const liquidatableStatus = await isAccountLiquidatable(account, this.user, this.web3Wrapper.getWeb3());
-                    const balance = await borrowBalance(this.liquidatorToken, account, this.user, this.web3Wrapper.getWeb3());
-                    // Should have borrowed some tokens in liquidatorToken for the borrower.
-                    if (liquidatableStatus && balance) {
-                        this.liquidatableAccounts.push(account);
-                    }
-                }
-            } catch (err) {
-                logger.error({
-                    at: 'FakeAccountGetter#runUpdateAccounts',
-                    message: err.message
-                });
-            }
-
-            logger.info({
-                at: 'FakeAccountGetter#runUpdateAccounts',
-                message: "Finish one round of runUpdateAccounts"
-            });
+            await this.updateLiquidatableAccounts()
             await this.wait(this.updateFreqSec);
         }
+
+    }
+
+    async updateLiquidatableAccounts() {
+        this.liquidatableAccounts = [];
+        try {
+            for (let account of this.accounts) {
+                const liquidatableStatus = await isAccountLiquidatable(
+                    account,
+                    this.user,
+                    this.web3Wrapper.getWeb3(),
+                    this.address
+                );
+
+                const balance = (await borrowBalance(
+                    this.liquidatorToken,
+                    account,
+                    this.user,
+                    this.web3Wrapper.getWeb3(),
+                    this.address
+                )).toString();
+
+                logger.info({
+                    at: 'FakeAccountGetter#updateLiquidatableAccounts',
+                    message: `The account ${account} has ${this.liquidatorToken} token borrow balance ${balance}, liquidatable status is ${liquidatableStatus}`
+                });
+
+                // Should have borrowed some tokens in liquidatorToken for the borrower.
+                if (liquidatableStatus && balance != "0") {
+                    this.liquidatableAccounts.push(account);
+                }
+            }
+        } catch (err) {
+            logger.error({
+                at: 'FakeAccountGetter#updateLiquidatableAccounts',
+                message: err.message
+            });
+        }
+
+        logger.info({
+            at: 'FakeAccountGetter#updateAccounts',
+            message: "Finish one round of runUpdateAccounts"
+        });
     }
 }
