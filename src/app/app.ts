@@ -1,11 +1,13 @@
 import { addressGetter } from '../helper/addressGetter';
-import { Web3Wrapper } from '../helper/web3';
+import { Web3Wrapper } from '../helper/Web3Wrapper';
 import { getEnvVarStr, getEnvVarNumber } from '../helper/getEnv';
 import TaskExecutor from '../lib/TaskExecutor';
 import { GasPriceExecutor } from '../lib/GasPriceExecutor';
 import { BackendAccountGetter } from '../lib/BackendAccountGetter';
 import { LiquidateAccountsExecutor } from '../lib/LiquidateAccountsExecutor';
-import { logger } from '../lib/logger';
+import { Logger } from '../lib/Logger';
+
+const logger = Logger.getInstance().logger;
 
 export class App extends TaskExecutor {
 

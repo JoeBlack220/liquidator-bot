@@ -1,9 +1,11 @@
 import TaskExecutor from './TaskExecutor';
-import { logger } from './logger';
+import { Logger } from './Logger';
 import { isAccountLiquidatable, borrowBalance } from '../helper/contractsHelper';
 import axios from 'axios';
 import { AccountGetter } from './AccountGetter';
-import { Web3Wrapper } from '../helper/web3';
+import { Web3Wrapper } from '../helper/Web3Wrapper';
+
+const logger = Logger.getInstance().logger;
 
 export class BackendAccountGetter extends AccountGetter {
 
@@ -27,8 +29,8 @@ export class BackendAccountGetter extends AccountGetter {
      */
     async start() {
         logger.info({
-            at: 'FakeAccountGetter#start',
-            message: 'Starting FakeAccountGetter'
+            at: 'BackendAccountGetter#start',
+            message: 'Starting BackendAccountGetter'
         });
         this.runUpdateLiquidatableAccounts();
     }
@@ -123,7 +125,7 @@ export class BackendAccountGetter extends AccountGetter {
                 )).toString();
 
                 logger.info({
-                    at: 'FakeAccountGetter#updateLiquidatableAccounts',
+                    at: 'BackendAccountGetter#updateLiquidatableAccounts',
                     message: `The account ${account} has ${this.liquidatorToken} token borrow balance ${balance}, liquidatable status is ${liquidatableStatus}`
                 });
 
@@ -134,13 +136,13 @@ export class BackendAccountGetter extends AccountGetter {
             }
         } catch (err) {
             logger.error({
-                at: 'FakeAccountGetter#updateLiquidatableAccounts',
+                at: 'BackendAccountGetter#updateLiquidatableAccounts',
                 message: err.message
             });
         }
 
         logger.info({
-            at: 'FakeAccountGetter#updateAccounts',
+            at: 'BackendAccountGetter#updateAccounts',
             message: "Finish one round of runUpdateAccounts"
         });
 

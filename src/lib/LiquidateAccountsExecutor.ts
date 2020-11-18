@@ -1,9 +1,11 @@
 import TaskExecutor from './TaskExecutor';
-import { logger } from './logger';
+import { Logger } from './Logger';
 import { AccountGetter } from './AccountGetter';
 import { liquidate, isAccountLiquidatable } from '../helper/contractsHelper';
 import { GasPriceExecutor } from './GasPriceExecutor';
-import { Web3Wrapper } from '../helper/web3';
+import { Web3Wrapper } from '../helper/Web3Wrapper';
+
+const logger = Logger.getInstance().logger;
 
 export class LiquidateAccountsExecutor extends TaskExecutor {
 

@@ -1,7 +1,7 @@
 import '../../src/helper/env'
 import { expect } from 'chai';
 import { getPrice } from '../../src/helper/contractsHelper';
-import { Web3Wrapper } from '../../src/helper/web3';
+import { Web3Wrapper } from '../../src/helper/Web3Wrapper';
 import { addressGetter } from '../../src/helper/addressGetter';
 import { BackendAccountGetter } from '../../src/lib/BackendAccountGetter';
 import Web3 from 'web3';

@@ -1,5 +1,5 @@
 import TaskExecutor from '../lib/TaskExecutor';
-import { logger } from '../lib/logger';
+import { Logger } from '../lib/Logger';
 import {
     borrow,
     deposit,
@@ -16,9 +16,10 @@ import {
 }
     from '../helper/contractsHelper';
 import { GasPriceExecutor } from '../lib/GasPriceExecutor';
-import { Web3Wrapper } from '../helper/web3'
+import { Web3Wrapper } from '../helper/Web3Wrapper'
 
 const { BN } = require("@openzeppelin/test-helpers");
+const logger = Logger.getInstance().logger;
 
 export class TestGenerator extends TaskExecutor {
 

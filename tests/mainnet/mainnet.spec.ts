@@ -1,7 +1,7 @@
 import '../../src/helper/env'
 import { expect } from 'chai';
 import { GasPriceExecutor } from '../../src/lib/GasPriceExecutor';
-import { Web3Wrapper } from '../../src/helper/web3';
+import { Web3Wrapper } from '../../src/helper/Web3Wrapper';
 import Web3 from 'web3';
 import { TestGenerator } from '../../src/test-helper/TestGenerator';
 import { addressGetter } from '../../src/helper/addressGetter';

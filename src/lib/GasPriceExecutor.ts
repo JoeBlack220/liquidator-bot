@@ -1,7 +1,10 @@
 import TaskExecutor from './TaskExecutor';
-import { logger } from './logger';
 import axios from 'axios';
 import Web3 from 'web3';
+import { Logger } from './Logger';
+
+const logger = Logger.getInstance().logger;
+
 export class GasPriceExecutor extends TaskExecutor {
 
     gasStationUrl: string;
@@ -57,6 +60,8 @@ export class GasPriceExecutor extends TaskExecutor {
 
     /**
      * Call getGasPriceFromStation to get the newest gas price in gwei.
+     * 
+     * @remark - newPrice is of unit gwei / 10
      */
     updateGasPrice = async () => {
         let newPrice: number;

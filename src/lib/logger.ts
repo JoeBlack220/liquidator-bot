@@ -1,5 +1,4 @@
 import winston from 'winston';
-import Transport from 'winston-transport';
 
 const alignedWithColorsAndTime = winston.format.combine(
     winston.format.colorize(),
@@ -48,4 +47,25 @@ const logger = winston.createLogger({
     ]
 });
 
-export { logger };
+export class Logger {
+
+    private static instance: Logger;
+    public logger: winston.Logger;
+
+    private constructor() {
+        this.logger = logger;
+    }
+
+    /**
+     * Get a singleton instance of Logger
+     */
+    public static getInstance = (): Logger => {
+
+        if (!Logger.instance) {
+            Logger.instance = new Logger();
+        }
+
+        return Logger.instance;
+    }
+
+}

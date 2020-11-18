@@ -1,7 +1,9 @@
 import { AccountGetter } from './AccountGetter';
-import { logger } from './logger';
+import { Logger } from './Logger';
 import { isAccountLiquidatable, borrowBalance } from '../helper/contractsHelper';
-import { Web3Wrapper } from '../helper/web3';
+import { Web3Wrapper } from '../helper/Web3Wrapper';
+
+const logger = Logger.getInstance().logger;
 
 export class GanacheAccountGetter extends AccountGetter {
 
