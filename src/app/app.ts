@@ -1,22 +1,25 @@
 import { addressGetter } from '../helper/addressGetter';
 import { Web3Wrapper } from '../helper/Web3Wrapper';
 import { getEnvVarStr, getEnvVarNumber } from '../helper/getEnv';
+import { AccountGetter } from '../lib/AccountGetter';
 import TaskExecutor from '../lib/TaskExecutor';
 import { GasPriceExecutor } from '../lib/GasPriceExecutor';
-import { BackendAccountGetter } from '../lib/BackendAccountGetter';
-import { LiquidateAccountsExecutor } from '../lib/LiquidateAccountsExecutor';
+import { BackendAccountGetter, BackendAccountGetterBuilder } from '../lib/BackendAccountGetter';
+import { LiquidateAccountsExecutor, LiquidateAccountsExecutorBuilder } from '../lib/LiquidateAccountsExecutor';
 import { Logger } from '../lib/Logger';
 
 const logger = Logger.getInstance().logger;
 
 export class App extends TaskExecutor {
 
-    accountGetter: BackendAccountGetter;
-    gasGetter: GasPriceExecutor;
-    liquidateExecutor: LiquidateAccountsExecutor;
-    web3Wrapper: Web3Wrapper;
-    address: any;
-    liquidateFreq: number;
+    private accountBuilder: BackendAccountGetterBuilder;
+    private accountGetter: AccountGetter;
+    private gasGetter: GasPriceExecutor;
+    private liquidateExecutorBuilder: LiquidateAccountsExecutorBuilder;
+    private liquidateExecutor: LiquidateAccountsExecutor;
+    private web3Wrapper: Web3Wrapper;
+    private address: any;
+    private liquidateFreq: number;
 
     constructor() {
         super();
@@ -55,25 +58,27 @@ export class App extends TaskExecutor {
             gasPriceMultiplier,
         );
 
-        this.accountGetter = new BackendAccountGetter(
-            10000,
-            liquidatorToken,
-            accountNum,
-            100,
-            publicKey,
-            this.web3Wrapper,
-            this.address
-        );
+        this.accountBuilder = new BackendAccountGetterBuilder();
 
-        this.liquidateExecutor = new LiquidateAccountsExecutor(
-            this.accountGetter,
-            this.gasGetter,
-            liquidateFreq,
-            liquidatorToken,
-            publicKey,
-            this.web3Wrapper,
-            this.address
-        )
+        this.accountGetter = this.accountBuilder
+            .setAccountNum(accountNum)
+            .setAddress(this.address)
+            .setLimitPerReq(100)
+            .setLiquidatorToken(liquidatorToken)
+            .setUpdateFreqSec(10000)
+            .setUser(publicKey)
+            .build();
+
+        this.liquidateExecutorBuilder = new LiquidateAccountsExecutorBuilder();
+
+        this.liquidateExecutor = this.liquidateExecutorBuilder
+            .setAccountGetter(this.accountGetter)
+            .setAddress(this.address)
+            .setGasPriceGetter(this.gasGetter)
+            .setLiquidatorToken(liquidatorToken)
+            .setUpdateFreqSec(10000)
+            .setUser(publicKey)
+            .build()
     }
 
     /**

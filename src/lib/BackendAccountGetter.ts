@@ -7,6 +7,111 @@ import { Web3Wrapper } from '../helper/Web3Wrapper';
 
 const logger = Logger.getInstance().logger;
 
+export class BackendAccountGetterBuilder {
+
+    private accountGetter?: BackendAccountGetter;
+    private updateFreqSec: number = 1000;
+    private liquidatorToken: string = "ETH";
+    private accountNum: number = 100;
+    private limitPerReq: number = 100;
+    private user: string = "";
+    private web3Wrapper: Web3Wrapper = Web3Wrapper.getInstance();
+    private address: any = {};
+
+    public constructor() {
+
+    }
+
+    /**
+     * Setter for updateFreqSec
+     * @param updateFreqSec - How many time delay after one update.
+     */
+    public setUpdateFreqSec(updateFreqSec: number) {
+        this.updateFreqSec = updateFreqSec;
+        return this;
+    }
+
+    /**
+     * Setter for liquidatorToken
+     * @param liquidatorToken - The token that the liquidator will use.
+     */
+    public setLiquidatorToken(liquidatorToken: string) {
+        this.liquidatorToken = liquidatorToken;
+        return this;
+    }
+
+    /**
+     * Setter for accountNum.
+     * @param accountNum - How many accounts to get for one round.
+     */
+    public setAccountNum(accountNum: number) {
+        this.accountNum = accountNum;
+        return this;
+
+    }
+
+    /**
+     * Setter for limitPerReq
+     * @param limitPerReq - How many accounts to get for one query.
+     */
+    public setLimitPerReq(limitPerReq: number) {
+        this.limitPerReq = limitPerReq;
+        return this;
+    }
+
+    /**
+     * Setter for user
+     * @param user - The liquidator's address
+     */
+    public setUser(user: string) {
+        this.user = user;
+        return this;
+    }
+
+    /**
+     * Setter for address
+     * @param address - The addresses of DeFiner protocol
+     */
+    public setAddress(address: any) {
+        this.address = address;
+        return this;
+    }
+
+    /**
+     * Reset the accountGetter
+     */
+    public reset() {
+        this.accountGetter = undefined;
+        return this;
+    }
+
+    /**
+     * Build a new accountGetter.
+     */
+    public build() {
+
+        this.accountGetter = new BackendAccountGetter(
+            this.updateFreqSec,
+            this.liquidatorToken,
+            this.accountNum,
+            this.limitPerReq,
+            this.user,
+            this.web3Wrapper,
+            this.address
+        )
+
+        return this.accountGetter;
+    }
+
+    /**
+     * Getter for accountGetter.
+     */
+    public getAccountGetter() {
+        return this.accountGetter;
+    }
+
+}
+
 export class BackendAccountGetter extends AccountGetter {
 
     accountNum: number;
@@ -70,22 +175,23 @@ export class BackendAccountGetter extends AccountGetter {
                     message: 'Failed to retrieve accounts from stat API',
                     data: res.data
                 });
+                // If it returns error Num for three times, just return.
                 errorNum++;
             } else {
                 const newAccounts = res.data.data;
-                if (newAccounts.length < this.limitPerReq) {
-                    this.pageNum = 1;
-                    return;
-                } else {
-                    this.pageNum++;
-                }
                 for (let info of newAccounts) {
                     this.accounts.push(info['eth_address']);
                     if (Number(info['ltv']) >= 0.85) {
                         this.liquidatableAccounts.push(info['eth_address']);
                     }
                 }
-                curAccNum += newAccounts.length
+                curAccNum += newAccounts.length;
+                if (newAccounts.length < this.limitPerReq) {
+                    this.pageNum = 1;
+                    return;
+                } else {
+                    this.pageNum++;
+                }
             }
         }
     }

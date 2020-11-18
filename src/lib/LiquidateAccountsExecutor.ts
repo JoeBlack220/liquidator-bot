@@ -4,8 +4,111 @@ import { AccountGetter } from './AccountGetter';
 import { liquidate, isAccountLiquidatable } from '../helper/contractsHelper';
 import { GasPriceExecutor } from './GasPriceExecutor';
 import { Web3Wrapper } from '../helper/Web3Wrapper';
+import { add } from 'winston';
 
 const logger = Logger.getInstance().logger;
+
+export class LiquidateAccountsExecutorBuilder {
+
+    private liquidateAccountsExecutor?: LiquidateAccountsExecutor;
+    private accountGetter?: AccountGetter;
+    private gasPriceGetter?: GasPriceExecutor;
+    private updateFreqSec: number = 10000;
+    private liquidatorToken: string = "ETH";
+    private user: string = "";
+    private web3Wrapper: Web3Wrapper = Web3Wrapper.getInstance();
+    private address: any
+
+    /**
+     * Setter for accountGetter
+     * @param accountGetter - Account getter
+     */
+    public setAccountGetter(accountGetter: AccountGetter) {
+        this.accountGetter = accountGetter;
+        return this;
+    }
+
+    /**
+     * Setter for gasPriceGetter
+     * @param gasPriceGetter - gas price getter
+     */
+    public setGasPriceGetter(gasPriceGetter: GasPriceExecutor) {
+        this.gasPriceGetter = gasPriceGetter;
+        return this;
+    }
+
+    /**
+     * Setter for updateFreaSec
+     * @param updateFreqSec - After one liquidate process, how much time to sleep before the next round.
+     */
+    public setUpdateFreqSec(updateFreqSec: number) {
+        this.updateFreqSec = updateFreqSec;
+        return this;
+    }
+
+    /**
+     * Setter for liquidatorToken
+     * @param liquidatorToken - The kind of token that the liquidator will use.
+     */
+    public setLiquidatorToken(liquidatorToken: string) {
+        this.liquidatorToken = liquidatorToken;
+        return this;
+    }
+
+    /**
+     * Setter for user
+     * @param user - The public key of the liquidator.
+     */
+    public setUser(user: string) {
+        this.user = user;
+        return this;
+    }
+
+    /**
+     * Setter for address
+     * @param address - The addresses of DeFiner's protocols
+     */
+    public setAddress(address: any) {
+        this.address = address;
+        return this;
+    }
+
+    /**
+     * Reset the liquidateAccountsExecutor
+     */
+    public reset() {
+        this.liquidateAccountsExecutor = undefined;
+    }
+
+    /**
+     * Build a new instance of liquidateAccountsExecutor
+     */
+    public build() {
+        if (!this.accountGetter || !this.gasPriceGetter) {
+            throw new Error("You have to set accountGetter and gasPriceGetter first");
+        }
+
+        this.liquidateAccountsExecutor = new LiquidateAccountsExecutor(
+            this.accountGetter,
+            this.gasPriceGetter,
+            this.updateFreqSec,
+            this.liquidatorToken,
+            this.user,
+            this.web3Wrapper,
+            this.address
+        )
+
+        return this.liquidateAccountsExecutor;
+    }
+
+    /**
+     * Return the current instance of liquidateAccountsExecutor
+     */
+    public getLiquidatableAccounts() {
+        return this.liquidateAccountsExecutor;
+    }
+
+}
 
 export class LiquidateAccountsExecutor extends TaskExecutor {
 
