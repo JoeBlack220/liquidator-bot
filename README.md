@@ -41,9 +41,10 @@ User2 tries to liquidate user1.
 
 ## Useage
 ### Requirement
-- Nodejs.
+- Nodejs: https://nodejs.org/en/
 - An account that has deposited some **target token** in DeFiner, and it has enough ETH to call liqudiate() function.
-- An access node.
+- Typescript: https://www.typescriptlang.org/download
+- An access node: https://infura.io/
 - Ensure that your account has enough ETH for all the liquidation operation.
 
 ### Env Variables
