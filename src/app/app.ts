@@ -12,14 +12,14 @@ const logger = Logger.getInstance().logger;
 
 export class App extends TaskExecutor {
 
-    private accountBuilder: BackendAccountGetterBuilder;
-    private accountGetter: AccountGetter;
-    private gasGetter: GasPriceExecutor;
-    private liquidateExecutorBuilder: LiquidateAccountsExecutorBuilder;
-    private liquidateExecutor: LiquidateAccountsExecutor;
-    private web3Wrapper: Web3Wrapper;
-    private address: any;
-    private liquidateFreq: number;
+    public accountBuilder: BackendAccountGetterBuilder;
+    public accountGetter: BackendAccountGetter;
+    public gasGetter: GasPriceExecutor;
+    public liquidateExecutorBuilder: LiquidateAccountsExecutorBuilder;
+    public liquidateExecutor: LiquidateAccountsExecutor;
+    public web3Wrapper: Web3Wrapper;
+    public address: any;
+    public liquidateFreq: number;
 
     constructor() {
         super();

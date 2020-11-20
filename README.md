@@ -64,12 +64,20 @@ You can create a `.env` file and take the template of `.env.example` to make you
 | ACCESS_NODE_URL                      | Your access node's URL                                 | NULL                                          |
 | ACCOUNT_NUM                          | How many accounts to get for one round                 | 1000                                          |
 
-### Steps
+### Run from Docker
+- Require install [docker](https://docs.docker.com/get-docker/)
+- Run: `docker run \
+  -e ACCESS_NODE_URL=YourAccessNode \
+  -e PRIVATE_KEY=YourPrivateKey \
+  -e PUBLIC_KEY=YourPublicKey \
+  dongyongguaige/liquidator-bot:first-version`
+
+### Build from Source
 - Download this git repo: `git clone https://github.com/DeFinerOrg/Savings.git`
 - Install dependencies: `npm i`
 - Go inside this directory: `cd liquidator-bot/`
 - Create a file called .env in the root directory. You can check the last section on instructions about how to create that file.
-- Run the liquidator bot: `ts-node src/index.ts`
+- Run the liquidator bot: `ACCESS_NODE_URL=YourAccessNode PRIVATE_KEY=YourPrivateKey PUBLIC_KEY=YourPublicKey ts-node src/index.ts`
 - You can find logs inside: `logs/` directory
 
 ## Test
