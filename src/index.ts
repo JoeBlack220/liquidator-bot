@@ -7,7 +7,7 @@ import { App } from "./app/app";
     app.start();
 
 
-})().then(e => console.log(e))
+})().then(e => { })
 
 
 

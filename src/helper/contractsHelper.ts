@@ -1,7 +1,5 @@
 import Web3 from 'web3';
 import { getInstance } from './getContractInstance';
-import { addressGetter } from './addressGetter';
-import { getEnvVarStr } from './getEnv';
 const { BN } = require("@openzeppelin/test-helpers");
 
 /**

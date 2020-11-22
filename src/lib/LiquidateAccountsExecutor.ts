@@ -4,7 +4,6 @@ import { AccountGetter } from './AccountGetter';
 import { liquidate, isAccountLiquidatable } from '../helper/contractsHelper';
 import { GasPriceExecutor } from './GasPriceExecutor';
 import { Web3Wrapper } from '../helper/Web3Wrapper';
-import { add } from 'winston';
 
 const logger = Logger.getInstance().logger;
 

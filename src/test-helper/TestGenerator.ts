@@ -3,13 +3,10 @@ import { Logger } from '../lib/Logger';
 import {
     borrow,
     deposit,
-    isAccountLiquidatable,
-    liquidate,
     updatePrice,
     getPrice,
     borrowBalance,
     repay,
-    withdraw,
     withdrawAll,
     mint,
     depositBalance
